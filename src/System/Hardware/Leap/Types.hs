@@ -33,9 +33,9 @@ type Duration = Int
 type Vector a = (a, a, a)
 
 
--- | Three dimensionsional basis.
+-- | Three dimensional basis.
 type Basis a = (Vector a, Vector a, Vector a)
 
 
--- | Three dimensionsional rotation matrix.
+-- | Three dimensional rotation matrix.
 type Matrix a = (Vector a, Vector a, Vector a)
