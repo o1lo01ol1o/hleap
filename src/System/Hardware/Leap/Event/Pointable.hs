@@ -1,7 +1,21 @@
+{-|
+Module      :  System.Hardware.Leap.Event.Pointable
+Copyright   :  (c) 2016 Brian W Bush
+License     :  MIT
+Maintainer  :  Brian W Bush <consult@brianwbush.info>
+Stability   :  Stable
+Portability :  Portable
+
+
+Pointable events for Leap Motion \<<https://www.leapmotion.com/product/desktop>\>, based on the Web Socket API \<<https://developer.leapmotion.com/documentation/javascript/supplements/Leap_JSON.html>\>.
+-}
+
+
 {-# LANGUAGE OverloadedStrings #-}
 
 
 module System.Hardware.Leap.Event.Pointable (
+-- * Events
   Pointable(..)
 , TouchZone(..)
 , Finger(..)
@@ -12,11 +26,12 @@ import Control.Applicative (empty)
 import Data.Aeson (FromJSON(..), Value(..), (.:))
 import Data.Map.Strict (Map, fromList)
 import System.Hardware.Leap.Event.Hand (Hand(HandReference))
-import System.Hardware.Leap.Types (LeapId, Matrix, Vector)
+import System.Hardware.Leap.Types (Basis, LeapId, Vector)
 
 import qualified Data.HashMap.Strict as M (lookup)
 
 
+-- | Touch zones.
 data TouchZone = None | Hovering | Touching
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
@@ -27,6 +42,7 @@ instance FromJSON TouchZone where
   parseJSON _                   = empty
 
 
+-- | Fingers.
 data Finger = Thumb | IndexFinger | MiddleFinger | RingFinger | Pinky
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
@@ -39,6 +55,7 @@ instance FromJSON Finger where
   parseJSON _          = empty
 
 
+-- | Pointable tracking information.  See \<<https://developer.leapmotion.com/documentation/javascript/supplements/Leap_JSON.html>\> for details.
 data Pointable a =
     PointableReference
     {
@@ -46,7 +63,7 @@ data Pointable a =
     }
   | Finger
     {
-      bases                 :: Map Finger (Matrix a)
+      bases                 :: Map Finger (Basis a)
     , btipPosition          :: Vector a
     , carpPosition          :: Vector a
     , dipPosition           :: Vector a

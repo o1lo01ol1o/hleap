@@ -1,7 +1,21 @@
+{-|
+Module      :  System.Hardware.Leap.Event.Hand
+Copyright   :  (c) 2016 Brian W Bush
+License     :  MIT
+Maintainer  :  Brian W Bush <consult@brianwbush.info>
+Stability   :  Stable
+Portability :  Portable
+
+
+Hand events for Leap Motion \<<https://www.leapmotion.com/product/desktop>\>, based on the Web Socket API \<<https://developer.leapmotion.com/documentation/javascript/supplements/Leap_JSON.html>\>.
+-}
+
+
 {-# LANGUAGE OverloadedStrings #-}
 
 
 module System.Hardware.Leap.Event.Hand (
+-- * Events
   Hand(..)
 , Side(..)
 ) where
@@ -9,9 +23,10 @@ module System.Hardware.Leap.Event.Hand (
 
 import Control.Applicative (empty)
 import Data.Aeson (FromJSON(..), Value(..), (.:))
-import System.Hardware.Leap.Types (LeapId, Matrix, Vector)
+import System.Hardware.Leap.Types (Basis, LeapId, Matrix, Vector)
 
 
+-- | Hands.
 data Side = LeftHand | RightHand
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
@@ -21,6 +36,7 @@ instance FromJSON Side where
   parseJSON _                = empty
 
 
+-- | Hand tracking information.  See \<<https://developer.leapmotion.com/documentation/javascript/supplements/Leap_JSON.html>\> for details.
 data Hand a =
     HandReference
     {
@@ -28,7 +44,7 @@ data Hand a =
     }
   | Hand
     {
-      armBasis               :: Matrix a
+      armBasis               :: Basis a
     , armWidth               :: a
     , confidence             :: a
     , direction              :: Vector a

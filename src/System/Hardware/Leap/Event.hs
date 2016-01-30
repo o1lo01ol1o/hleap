@@ -1,8 +1,22 @@
+{-|
+Module      :  System.Hardware.Leap.Event
+Copyright   :  (c) 2016 Brian W Bush
+License     :  MIT
+Maintainer  :  Brian W Bush <consult@brianwbush.info>
+Stability   :  Stable
+Portability :  Portable
+
+
+Events for Leap Motion \<<https://www.leapmotion.com/product/desktop>\>, based on the Web Socket API \<<https://developer.leapmotion.com/documentation/javascript/supplements/Leap_JSON.html>\>.
+-}
+
+
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
 
 module System.Hardware.Leap.Event (
+-- * Events
   Event(..)
 , State(..)
 , InteractionBox(..)
@@ -24,6 +38,7 @@ import qualified System.Hardware.Leap.Event.Hand as H (leapId)
 import qualified System.Hardware.Leap.Event.Pointable as P (hand, leapId)
 
 
+-- | State of a Leap device.
 data State =
   State
   {
@@ -44,6 +59,7 @@ instance FromJSON State where
   parseJSON _ = empty
 
 
+-- | Event information.  See \<<https://developer.leapmotion.com/documentation/javascript/supplements/Leap_JSON.html>\> for details.
 data Event a =
     Event
     {
@@ -88,6 +104,7 @@ instance FromJSON a => FromJSON (Event a) where
   parseJSON _ = empty
 
 
+-- | Construct tracking information.
 tracking :: a -> Int -> Matrix a -> a -> Vector a -> Int -> [String] -> [Gesture a] -> [Hand a] -> InteractionBox a -> [Pointable a] -> Event a
 tracking currentFrameRate leapId r s t timestamp devices gestures' hands interactionBox pointables' =
   let
@@ -109,6 +126,7 @@ tracking currentFrameRate leapId r s t timestamp devices gestures' hands interac
     Tracking{..}
 
 
+-- | An interaction box.
 data InteractionBox a =
   InteractionBox
   {

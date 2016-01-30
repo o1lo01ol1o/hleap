@@ -1,7 +1,21 @@
+{-|
+Module      :  System.Hardware.Leap.Event.Gesture
+Copyright   :  (c) 2016 Brian W Bush
+License     :  MIT
+Maintainer  :  Brian W Bush <consult@brianwbush.info>
+Stability   :  Stable
+Portability :  Portable
+
+
+Gesture events for Leap Motion \<<https://www.leapmotion.com/product/desktop>\>, based on the Web Socket API \<<https://developer.leapmotion.com/documentation/javascript/supplements/Leap_JSON.html>\>.
+-}
+
+
 {-# LANGUAGE OverloadedStrings #-}
 
 
 module System.Hardware.Leap.Event.Gesture (
+-- * Events
   Gesture(..)
 , State(..)
 ) where
@@ -16,6 +30,7 @@ import System.Hardware.Leap.Types (Duration, LeapId, Vector)
 import qualified Data.HashMap.Strict as M (lookup)
 
 
+-- | The state of a gesture.
 data State = Start | Update | Stop
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
@@ -26,6 +41,7 @@ instance FromJSON State where
   parseJSON _                 = empty
 
 
+-- | Gesture tracking information.  See \<<https://developer.leapmotion.com/documentation/javascript/supplements/Leap_JSON.html>\> for details.
 data Gesture a =
     GestureReference
     {
