@@ -9,7 +9,9 @@ module System.Hardware.Leap.Event.Gesture (
 
 import Control.Applicative (empty)
 import Data.Aeson (FromJSON(..), Value(..), (.:))
-import System.Hardware.Leap.Types (Vector)
+import System.Hardware.Leap.Event.Hand (Hand(HandReference))
+import System.Hardware.Leap.Event.Pointable (Pointable(PointableReference))
+import System.Hardware.Leap.Types (Duration, LeapId, Vector)
 
 import qualified Data.HashMap.Strict as M (lookup)
 
@@ -25,14 +27,18 @@ instance FromJSON State where
 
 
 data Gesture a =
-    Circle
+    GestureReference
+    {
+      leapId       :: LeapId
+    }
+  | Circle
     {
       center       :: Vector a
-    , duration     :: Int
-    , handIds      :: [Int]
-    , leapId       :: Int
+    , duration     :: Duration
+    , hands        :: [Hand a]
+    , leapId       :: LeapId
     , normal       :: Vector a
-    , pointableIds :: [Int]
+    , pointables   :: [Pointable a]
     , progress     :: a
     , radius       :: a
     , state        :: State
@@ -40,10 +46,10 @@ data Gesture a =
   | Swipe
     {
       direction     :: Vector a
-    , duration      :: Int
-    , handIds       :: [Int]
-    , leapId        :: Int
-    , pointableIds  :: [Int]
+    , duration      :: Duration
+    , hands         :: [Hand a]
+    , leapId        :: LeapId
+    , pointables    :: [Pointable a]
     , position      :: Vector a
     , speed         :: a
     , startPosition :: Vector a
@@ -52,10 +58,10 @@ data Gesture a =
   | KeyTap
     {
       direction     :: Vector a
-    , duration      :: Int
-    , handIds       :: [Int]
-    , leapId        :: Int
-    , pointableIds  :: [Int]
+    , duration      :: Duration
+    , hands         :: [Hand a]
+    , leapId        :: LeapId
+    , pointables    :: [Pointable a]
     , position      :: Vector a
     , progress      :: a
     , state         :: State
@@ -63,10 +69,10 @@ data Gesture a =
   | ScreenTap
     {
       direction     :: Vector a
-    , duration      :: Int
-    , handIds       :: [Int]
-    , leapId        :: Int
-    , pointableIds  :: [Int]
+    , duration      :: Duration
+    , hands         :: [Hand a]
+    , leapId        :: LeapId
+    , pointables    :: [Pointable a]
     , position      :: Vector a
     , progress      :: a
     , state         :: State
@@ -78,19 +84,19 @@ instance FromJSON a => FromJSON (Gesture a) where
     | t == Just "circle"    = Circle
                                 <$> o .: "center"
                                 <*> o .: "duration"
-                                <*> o .: "handIds"
+                                <*> (map HandReference <$> o .: "handIds")
                                 <*> o .: "id"
                                 <*> o .: "normal"
-                                <*> o .: "pointableIds"
+                                <*> (map PointableReference <$> o .: "pointableIds")
                                 <*> o .: "progress"
                                 <*> o .: "radius"
                                 <*> o .: "state"
     | t == Just "swipe"     = Swipe
                                 <$> o .: "direction"
                                 <*> o .: "duration"
-                                <*> o .: "handIds"
+                                <*> (map HandReference <$> o .: "handIds")
                                 <*> o .: "id"
-                                <*> o .: "pointableIds"
+                                <*> (map PointableReference <$> o .: "pointableIds")
                                 <*> o .: "position"
                                 <*> o .: "speed"
                                 <*> o .: "startPosition"
@@ -98,22 +104,22 @@ instance FromJSON a => FromJSON (Gesture a) where
     | t == Just "keyTap"    = KeyTap
                                 <$> o .: "direction"
                                 <*> o .: "duration"
-                                <*> o .: "handIds"
+                                <*> (map HandReference <$> o .: "handIds")
                                 <*> o .: "id"
-                                <*> o .: "pointableIds"
+                                <*> (map PointableReference <$> o .: "pointableIds")
                                 <*> o .: "position"
                                 <*> o .: "progress"
                                 <*> o .: "state"
     | t == Just "screenTap" = ScreenTap
                                 <$> o .: "direction"
                                 <*> o .: "duration"
-                                <*> o .: "handIds"
+                                <*> (map HandReference <$> o .: "handIds")
                                 <*> o .: "id"
-                                <*> o .: "pointableIds"
+                                <*> (map PointableReference <$> o .: "pointableIds")
                                 <*> o .: "position"
                                 <*> o .: "progress"
                                 <*> o .: "state"
-    | otherwise             =  error $ "Failed to parse JSON: " ++ show (Object o)
+    | otherwise             =  empty
       where
         t = "type" `M.lookup` o
   parseJSON _ = empty

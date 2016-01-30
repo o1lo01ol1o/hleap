@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 
 module System.Hardware.Leap.Event (
@@ -10,12 +11,17 @@ module System.Hardware.Leap.Event (
 
 import Control.Applicative (empty)
 import Data.Aeson (FromJSON(..), Value(..), (.:))
-import System.Hardware.Leap.Event.Gesture (Gesture)
-import System.Hardware.Leap.Event.Hand (Hand)
-import System.Hardware.Leap.Event.Pointable (Pointable)
-import System.Hardware.Leap.Types (Matrix, Vector)
+import Data.List (find)
+import Data.Maybe (fromMaybe)
+import System.Hardware.Leap.Event.Gesture (Gesture(..))
+import System.Hardware.Leap.Event.Hand (Hand(HandReference))
+import System.Hardware.Leap.Event.Pointable (Pointable(..))
+import System.Hardware.Leap.Types (Duration, LeapId, Matrix, Vector)
 
 import qualified Data.HashMap.Strict as M (lookup)
+import qualified System.Hardware.Leap.Event.Gesture as G (hands, pointables)
+import qualified System.Hardware.Leap.Event.Hand as H (leapId)
+import qualified System.Hardware.Leap.Event.Pointable as P (hand, leapId)
 
 
 data State =
@@ -47,11 +53,11 @@ data Event a =
   | Tracking
     {
       currentFrameRate :: a
-    , leapId           :: a
+    , leapId           :: LeapId
     , r                :: Matrix a
     , s                :: a
     , t                :: Vector a
-    , timestamp        :: Int
+    , timestamp        :: Duration
     , devices          :: [String]
     , gestures         :: [Gesture a]
     , hands            :: [Hand a]
@@ -66,7 +72,7 @@ instance FromJSON a => FromJSON (Event a) where
       Just (Object o') -> Event
                             <$> o' .: "state"
                             <*> o' .: "type"
-      Nothing          -> Tracking
+      Nothing          -> tracking
                             <$> o .: "currentFrameRate"
                             <*> o .: "id"
                             <*> o .: "r"
@@ -80,6 +86,27 @@ instance FromJSON a => FromJSON (Event a) where
                             <*> o .: "pointables"
       _                -> empty
   parseJSON _ = empty
+
+
+tracking :: a -> Int -> Matrix a -> a -> Vector a -> Int -> [String] -> [Gesture a] -> [Hand a] -> InteractionBox a -> [Pointable a] -> Event a
+tracking currentFrameRate leapId r s t timestamp devices gestures' hands interactionBox pointables' =
+  let
+    replaceHand h@(HandReference i) = fromMaybe h $ find ((== i) . H.leapId) hands
+    replaceHand h                   = h
+    replacePointable p@(PointableReference i) = fromMaybe p $ find ((== i) . P.leapId) pointables
+    replacePointable p                        = p
+    updatePointable p@Finger{}             = p {P.hand = replaceHand $ P.hand p}
+    updatePointable p@Tool{}               = p {P.hand = replaceHand $ P.hand p}
+    updatePointable p@PointableReference{} = p
+    updateGesture g@Circle{}           = g {G.hands = map replaceHand $ G.hands g, G.pointables = map replacePointable $ G.pointables g}
+    updateGesture g@Swipe{}            = g {G.hands = map replaceHand $ G.hands g, G.pointables = map replacePointable $ G.pointables g}
+    updateGesture g@KeyTap{}           = g {G.hands = map replaceHand $ G.hands g, G.pointables = map replacePointable $ G.pointables g}
+    updateGesture g@ScreenTap{}        = g {G.hands = map replaceHand $ G.hands g, G.pointables = map replacePointable $ G.pointables g}
+    updateGesture g@GestureReference{} = g
+    pointables = map updatePointable pointables'
+    gestures = map updateGesture gestures'
+  in
+    Tracking{..}
 
 
 data InteractionBox a =

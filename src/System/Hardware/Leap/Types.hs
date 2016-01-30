@@ -1,7 +1,15 @@
 module System.Hardware.Leap.Types (
-  Vector
+  LeapId
+, Duration
+, Vector
 , Matrix
 ) where
+
+
+type LeapId = Int
+
+
+type Duration = Int
 
 
 type Vector a = (a, a, a)

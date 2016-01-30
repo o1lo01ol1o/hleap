@@ -10,7 +10,9 @@ module System.Hardware.Leap.Event.Pointable (
 
 import Control.Applicative (empty)
 import Data.Aeson (FromJSON(..), Value(..), (.:))
-import System.Hardware.Leap.Types (Vector)
+import Data.Map.Strict (Map, fromList)
+import System.Hardware.Leap.Event.Hand (Hand(HandReference))
+import System.Hardware.Leap.Types (LeapId, Matrix, Vector)
 
 import qualified Data.HashMap.Strict as M (lookup)
 
@@ -38,16 +40,20 @@ instance FromJSON Finger where
 
 
 data Pointable a =
-    Finger
+    PointableReference
     {
-      bases                 :: [[Vector a]]
+      leapId                :: LeapId
+    }
+  | Finger
+    {
+      bases                 :: Map Finger (Matrix a)
     , btipPosition          :: Vector a
     , carpPosition          :: Vector a
     , dipPosition           :: Vector a
     , direction             :: Vector a
     , extended              :: Bool
-    , handId                :: Int
-    , leapId                :: Int
+    , hand                  :: Hand a
+    , leapId                :: LeapId
     , pointableLength       :: a
     , mcpPosition           :: Vector a
     , pipPosition           :: Vector a
@@ -63,8 +69,8 @@ data Pointable a =
   | Tool
     {
       direction             :: Vector a
-    , handId                :: Int
-    , leapId                :: Int
+    , hand                  :: Hand a
+    , leapId                :: LeapId
     , pointableLength       :: a
     , stabilizedTipPosition :: Vector a
     , timeVisible           :: a
@@ -80,7 +86,7 @@ instance FromJSON a => FromJSON (Pointable a) where
   parseJSON (Object o)
     | "tool" `M.lookup` o == Just (Bool True) = Tool
                                                   <$> o .: "direction"
-                                                  <*> o .: "handId"
+                                                  <*> (HandReference <$> o .: "handId")
                                                   <*> o .: "id"
                                                   <*> o .: "length"
                                                   <*> o .: "stabilizedTipPosition"
@@ -91,13 +97,13 @@ instance FromJSON a => FromJSON (Pointable a) where
                                                   <*> o .: "touchZone"
                                                   <*> o .: "width"
     | otherwise                               = Finger
-                                                  <$> o .: "bases"
+                                                  <$> (fromList . zip [minBound..maxBound] <$> o .: "bases")
                                                   <*> o .: "btipPosition"
                                                   <*> o .: "carpPosition"
                                                   <*> o .: "dipPosition"
                                                   <*> o .: "direction"
                                                   <*> o .: "extended"
-                                                  <*> o .: "handId"
+                                                  <*> (HandReference <$> o .: "handId")
                                                   <*> o .: "id"
                                                   <*> o .: "length"
                                                   <*> o .: "mcpPosition"

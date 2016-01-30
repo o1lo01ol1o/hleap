@@ -9,7 +9,7 @@ module System.Hardware.Leap.Event.Hand (
 
 import Control.Applicative (empty)
 import Data.Aeson (FromJSON(..), Value(..), (.:))
-import System.Hardware.Leap.Types (Matrix, Vector)
+import System.Hardware.Leap.Types (LeapId, Matrix, Vector)
 
 
 data Side = LeftHand | RightHand
@@ -22,29 +22,33 @@ instance FromJSON Side where
 
 
 data Hand a =
-  Hand
-  {
-    armBasis               :: [Vector a]
-  , armWidth               :: a
-  , confidence             :: a
-  , direction              :: Vector a
-  , elbow                  :: Vector a
-  , grabStrength           :: a
-  , leapId                 :: Int
-  , palmNormal             :: Vector a
-  , palmPosition           :: Vector a
-  , palmVelocity           :: Vector a
-  , pinchStrength          :: a
-  , r                      :: Matrix a
-  , s                      :: a
-  , sphereCenter           :: Vector a
-  , sphereRadius           :: a
-  , stabilizedPalmPosition :: Vector a
-  , t                      :: Vector a
-  , timeVisible            :: a
-  , side                   :: Side
-  , wrist                  :: Vector a
-  }
+    HandReference
+    {
+      leapId                 :: LeapId
+    }
+  | Hand
+    {
+      armBasis               :: Matrix a
+    , armWidth               :: a
+    , confidence             :: a
+    , direction              :: Vector a
+    , elbow                  :: Vector a
+    , grabStrength           :: a
+    , leapId                 :: LeapId
+    , palmNormal             :: Vector a
+    , palmPosition           :: Vector a
+    , palmVelocity           :: Vector a
+    , pinchStrength          :: a
+    , r                      :: Matrix a
+    , s                      :: a
+    , sphereCenter           :: Vector a
+    , sphereRadius           :: a
+    , stabilizedPalmPosition :: Vector a
+    , t                      :: Vector a
+    , timeVisible            :: a
+    , side                   :: Side
+    , wrist                  :: Vector a
+    }
     deriving (Eq, Ord, Read, Show)
 
 instance FromJSON a => FromJSON (Hand a) where 
