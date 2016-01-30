@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
 
@@ -8,38 +7,34 @@ module Main (
 
 
 import Data.Default (def)
-import System.Hardware.Leap (run)
+import System.Hardware.Leap (runWithHandler, setFocused, setGestures)
 import System.Hardware.Leap.Event (Event(..))
-import System.Hardware.Leap.Event.Hand (Hand(..), Side)
+import System.Hardware.Leap.Event.Hand (Hand(side))
 import System.Hardware.Leap.Event.Gesture (Gesture(..))
-import System.Hardware.Leap.Event.Pointable (Pointable(..), Finger(IndexFinger))
+import System.Hardware.Leap.Event.Pointable (Pointable(..))
 
 
 main :: IO ()
-main = run def handler
+main = runWithHandler def [setFocused True, setGestures True] handler
 
 
 handler :: Event Float -> IO ()
-handler Tracking{..} =
-  do
-{-
-    let
-      handIds = map (\Hand{..} -> (leapId, side)) hands
-    mapM_ (handlePointable handIds) pointables
--}
-    mapM_ handleGesture gestures
+handler Tracking{..}
+  | not (null gestures  ) = mapM_ handleGesture gestures
+  | not (null pointables) = mapM_ handlePointable pointables
+  | otherwise             = return ()
 handler _ = return ()
 
 
-handlePointable :: [(Int, Side)] -> Pointable Float -> IO ()
-handlePointable handIds Finger{..}
-  | finger == IndexFinger = print (hand, finger, stabilizedTipPosition)
-  | otherwise             = return ()
-handlePointable handIds t@Tool{..} = print ("Tool", stabilizedTipPosition)
+handlePointable :: Show a => Pointable a -> IO ()
+handlePointable Finger{..}           = putStrLn $ "FINGER\t " ++ show (side hand) ++ "\t" ++ show finger ++ "\t" ++ show stabilizedTipPosition
+handlePointable Tool{..}             = putStrLn $ "TOOL\t " ++ show (side hand) ++ "\t" ++ show stabilizedTipPosition
+handlePointable PointableReference{} = return ()
 
 
-handleGesture :: Gesture Float -> IO ()
-handleGesture Circle{..}    = putStrLn $ "CIRCLE\t " ++ show state ++ " " ++ show pointables
-handleGesture Swipe{..}     = putStrLn $ "SWIPE\t"   ++ show state ++ " " ++ show pointables
-handleGesture KeyTap{..}    = putStrLn $ "KEY TAP\t" ++ show state ++ " " ++ show pointables
-handleGesture ScreenTap{..} = putStrLn $ "SCREEN TAP\t" ++ show state ++ " " ++ show pointables
+handleGesture :: Gesture a -> IO ()
+handleGesture Circle{..}         = putStrLn $ "CIRCLE\t "    ++ show state ++ "\t" ++ show (map side hands)
+handleGesture Swipe{..}          = putStrLn $ "SWIPE\t"      ++ show state ++ "\t" ++ show (map side hands)
+handleGesture KeyTap{..}         = putStrLn $ "KEY TAP\t"    ++ show state ++ "\t" ++ show (map side hands)
+handleGesture ScreenTap{..}      = putStrLn $ "SCREEN TAP\t" ++ show state ++ "\t" ++ show (map side hands)
+handleGesture GestureReference{} = return ()

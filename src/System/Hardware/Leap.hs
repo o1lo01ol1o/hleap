@@ -4,8 +4,10 @@
 
 module System.Hardware.Leap (
   Configuration(..)
+, ClientApp
 , Handler
 , run
+, runWithHandler
 , Version(..)
 , setBackground
 , setFocused
@@ -19,7 +21,7 @@ import Control.Monad (forever)
 import Data.Aeson (FromJSON(..), Value(..), (.:), eitherDecode)
 import Data.Default (Default(..))
 import Data.Text (pack)
-import Network.WebSockets (Connection, receiveData, runClient, sendTextData)
+import Network.WebSockets (ClientApp, Connection, receiveData, runClient, sendTextData)
 import System.Hardware.Leap.Event (Event(..))
 
 
@@ -43,16 +45,26 @@ instance Default Configuration where
 type Handler a = Event a -> IO ()
 
 
-run :: FromJSON a => Configuration -> Handler a -> IO ()
-run Configuration{..} handler =
+run :: Configuration -> ClientApp a -> IO a
+run Configuration{..} app =
   runClient host port "/v6.json" $ \connection ->
     do
       version' <- eitherDecode <$> receiveData connection
       case version' of
-        Right v@Version{} -> print v
-        Left  s -> error s
-      setFocused connection True
-      setGestures connection True
+        Right v@(Version _ 6) -> putStrLn $ "Leap connection" ++ show v
+        Right v               -> error $ "Incorrect version: " ++ show v
+        Left  s               -> error s
+      app connection
+
+
+type ConnectionModifier = Connection -> IO ()
+
+
+runWithHandler :: FromJSON a => Configuration -> [ConnectionModifier] -> Handler a -> IO ()
+runWithHandler configuration modifiers handler =
+  run configuration $ \connection ->
+    do
+      mapM_ ($ connection) modifiers
       forever $ do
         event' <- eitherDecode <$> receiveData connection
         case event' of
@@ -76,24 +88,24 @@ instance FromJSON Version where
   parseJSON _ = empty
 
 
-setBackground :: Connection -> Bool -> IO ()
+setBackground :: Bool -> ConnectionModifier
 setBackground = setSomething "background"
 
 
-setFocused :: Connection -> Bool -> IO ()
+setFocused :: Bool -> ConnectionModifier
 setFocused = setSomething "focused"
 
 
-setGestures :: Connection -> Bool -> IO ()
-setGestures = setSomething "gestures"
+setGestures :: Bool -> ConnectionModifier
+setGestures = setSomething "enableGestures"
 
 
-setOptimizedHMD :: Connection -> Bool -> IO ()
-setOptimizedHMD = setSomething "optimizedHMD"
+setOptimizedHMD :: Bool -> ConnectionModifier
+setOptimizedHMD = setSomething "optimizeHMD"
 
 
-setSomething :: String -> Connection -> Bool -> IO ()
-setSomething item connection enabled =
+setSomething :: String -> Bool -> ConnectionModifier
+setSomething item enabled connection =
   sendTextData connection
     $ pack
     $ "{\"" ++ item ++ "\" : " ++ (if enabled then "true" else "false") ++ "}"
