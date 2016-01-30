@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module System.Hardware.Leap.Gesture (
+module System.Hardware.Leap.Event.Gesture (
   Gesture(..)
 , State(..)
 ) where
@@ -21,7 +21,7 @@ instance FromJSON State where
   parseJSON (String "start" ) = return Start
   parseJSON (String "update") = return Update
   parseJSON (String "stop"  ) = return Stop
-  parseJSON _x                = empty -- error $ "Failed to parse JSON: " ++ show _x
+  parseJSON _                 = empty
 
 
 data Gesture a =
@@ -116,4 +116,4 @@ instance FromJSON a => FromJSON (Gesture a) where
     | otherwise             =  error $ "Failed to parse JSON: " ++ show (Object o)
       where
         t = "type" `M.lookup` o
-  parseJSON _x = empty -- error $ "Failed to parse JSON: " ++ show _x
+  parseJSON _ = empty

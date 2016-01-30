@@ -10,8 +10,8 @@ module Main (
 import Data.Default (def)
 import System.Hardware.Leap (run)
 import System.Hardware.Leap.Event (Event(..))
-import System.Hardware.Leap.Hand (Hand(..), Side)
-import System.Hardware.Leap.Pointable (Pointable(..), Finger(IndexFinger))
+import System.Hardware.Leap.Event.Hand (Hand(..), Side)
+import System.Hardware.Leap.Event.Pointable (Pointable(..), Finger(IndexFinger))
 
 
 main :: IO ()

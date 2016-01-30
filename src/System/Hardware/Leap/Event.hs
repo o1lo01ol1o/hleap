@@ -4,15 +4,16 @@
 module System.Hardware.Leap.Event (
   Event(..)
 , State(..)
+, InteractionBox(..)
 ) where
 
 
 import Control.Applicative (empty)
 import Data.Aeson (FromJSON(..), Value(..), (.:))
-import System.Hardware.Leap.Gesture (Gesture)
-import System.Hardware.Leap.Hand (Hand)
-import System.Hardware.Leap.Pointable (Pointable)
-import System.Hardware.Leap.Types (InteractionBox, Matrix, Vector)
+import System.Hardware.Leap.Event.Gesture (Gesture)
+import System.Hardware.Leap.Event.Hand (Hand)
+import System.Hardware.Leap.Event.Pointable (Pointable)
+import System.Hardware.Leap.Types (Matrix, Vector)
 
 import qualified Data.HashMap.Strict as M (lookup)
 
@@ -34,7 +35,7 @@ instance FromJSON State where
       <*> o .: "id"
       <*> o .: "streaming"
       <*> o .: "type"
-  parseJSON _x = empty -- error $ "Failed to parse JSON: " ++ show _x
+  parseJSON _ = empty
 
 
 data Event a =
@@ -78,4 +79,20 @@ instance FromJSON a => FromJSON (Event a) where
                             <*> o .: "interactionBox"
                             <*> o .: "pointables"
       _                -> empty
-  parseJSON _x = empty -- error $ "Failed to parse JSON: " ++ show _x
+  parseJSON _ = empty
+
+
+data InteractionBox a =
+  InteractionBox
+  {
+    center :: Vector a
+  , size   :: Vector a
+  }
+    deriving (Eq, Ord, Read, Show)
+
+instance FromJSON a => FromJSON (InteractionBox a) where
+  parseJSON (Object o) =
+    InteractionBox
+      <$> o .: "center"
+      <*> o .: "size"
+  parseJSON _ = empty

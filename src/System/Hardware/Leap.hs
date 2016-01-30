@@ -73,7 +73,7 @@ instance FromJSON Version where
     Version
       <$> o .: "serviceVersion"
       <*> o .: "version"
-  parseJSON _x = empty -- error $ "Failed to parse JSON: " ++ show _x
+  parseJSON _ = empty
 
 
 setBackground :: Connection -> Bool -> IO ()

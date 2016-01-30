@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                handa-leap
-version:             0.1.0.0
+version:             0.1.1.0
 -- synopsis:            
 -- description:         
 license:             MIT
@@ -19,9 +19,9 @@ executable handa-leap
   main-is:             Main.hs
   other-modules:       System.Hardware.Leap
                        System.Hardware.Leap.Event
-                       System.Hardware.Leap.Gesture
-                       System.Hardware.Leap.Hand
-                       System.Hardware.Leap.Pointable
+                       System.Hardware.Leap.Event.Gesture
+                       System.Hardware.Leap.Event.Hand
+                       System.Hardware.Leap.Event.Pointable
                        System.Hardware.Leap.Types
   -- other-extensions:    
   build-depends:       base >=4.8 && <4.9

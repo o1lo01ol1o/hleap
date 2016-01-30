@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module System.Hardware.Leap.Hand (
+module System.Hardware.Leap.Event.Hand (
   Hand(..)
 , Side(..)
 ) where
@@ -18,7 +18,7 @@ data Side = LeftHand | RightHand
 instance FromJSON Side where
   parseJSON (String "left" ) = return LeftHand
   parseJSON (String "right") = return RightHand
-  parseJSON _x               = empty -- error $ "Failed to parse JSON: " ++ show _x
+  parseJSON _                = empty
 
 
 data Hand a =
@@ -70,4 +70,4 @@ instance FromJSON a => FromJSON (Hand a) where
       <*> o .: "timeVisible"
       <*> o .: "type"
       <*> o .: "wrist"
-  parseJSON _x = empty -- error $ "Failed to parse JSON: " ++ show _x
+  parseJSON _ = empty

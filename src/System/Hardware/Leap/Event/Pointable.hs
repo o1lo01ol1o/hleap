@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module System.Hardware.Leap.Pointable (
+module System.Hardware.Leap.Event.Pointable (
   Pointable(..)
 , TouchZone(..)
 , Finger(..)
@@ -22,7 +22,7 @@ instance FromJSON TouchZone where
   parseJSON (String "none"    ) = return None
   parseJSON (String "hovering") = return Hovering
   parseJSON (String "touching") = return Touching
-  parseJSON _x                  = empty -- error $ "Failed to parse JSON: " ++ show _x
+  parseJSON _                   = empty
 
 
 data Finger = Thumb | IndexFinger | MiddleFinger | RingFinger | Pinky
@@ -34,7 +34,7 @@ instance FromJSON Finger where
   parseJSON (Number 2) = return MiddleFinger
   parseJSON (Number 3) = return RingFinger
   parseJSON (Number 4) = return Pinky
-  parseJSON _x         = empty -- error $ "Failed to parse JSON: " ++ show _x
+  parseJSON _          = empty
 
 
 data Pointable a =
@@ -110,4 +110,4 @@ instance FromJSON a => FromJSON (Pointable a) where
                                                   <*> o .: "touchZone"
                                                   <*> o .: "type"
                                                   <*> o .: "width"
-  parseJSON _x = empty -- error $ "Failed to parse JSON: " ++ show _x
+  parseJSON _ = empty
