@@ -44,7 +44,7 @@ handler _ = return ()
 -- | Handle pointable events.
 handlePointable :: Show a => Pointable a -> IO ()
 handlePointable Finger{..}           = putStrLn $ "FINGER\t " ++ show (side hand) ++ "\t" ++ show finger ++ "\t" ++ show stabilizedTipPosition
-handlePointable Tool{..}             = putStrLn $ "TOOL\t " ++ show (side hand) ++ "\t" ++ show stabilizedTipPosition
+handlePointable Tool{..}             = putStrLn $ "TOOL\t " ++ show stabilizedTipPosition
 handlePointable PointableReference{} = return ()
 
 
