@@ -1,5 +1,5 @@
 name:                hleap
-version:             0.1.2.6
+version:             0.1.2.7
 synopsis:            Web Socket interface to Leap Motion controller
 description:         This Haskell package contains functions for interfacing with Leap Motion controllers, \<<https://www.leapmotion.com/product/desktop>\>.  It is based on the WebSocket API \<<https://developer.leapmotion.com/documentation/javascript/supplements/Leap_JSON.html>\> and inspired by \<<https://bitbucket.org/turion/jedinight/>\>.
 
@@ -12,17 +12,15 @@ category:            Hardware
 build-type:          Simple
 cabal-version:       >= 1.10
 stability:           Stable
-homepage:            https://bitbucket.org/bwbush/hleap
+homepage:            https://bitbucket.org/functionally/hleap
 bug-reports:         https://bwbush.atlassian.net/projects/HLEAP/issues/
-package-url:         https://bitbucket.org/bwbush/hleap/downloads/hleap-0.1.2.6.tar.gz
-author:              Brian W Bush
-maintainer:          b.w.bush@acm.org
+package-url:         https://bitbucket.org/functionally/hleap/downloads/hleap-0.1.2.7.tar.gz
 
 extra-source-files:  ReadMe.md
 
 source-repository head
   type: git
-  location: https://bwbush@bitbucket.org/bwbush/hleap.git
+  location: https://bitbucket.org/functionally/hleap.git
  
 library
   build-depends:       base                 >= 4.8 && < 5
