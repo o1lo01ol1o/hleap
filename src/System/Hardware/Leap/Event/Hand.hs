@@ -1,8 +1,8 @@
 {-|
-Module      :  System.Hardware.Leap.Event.Hand
-Copyright   :  (c) 2016 Brian W Bush
+Module      :  $Header$
+Copyright   :  (c) 2016-19 Brian W Bush
 License     :  MIT
-Maintainer  :  Brian W Bush <consult@brianwbush.info>
+Maintainer  :  Brian W Bush <code@functionally.io>
 Stability   :  Stable
 Portability :  Portable
 
