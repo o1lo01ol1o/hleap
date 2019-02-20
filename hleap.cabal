@@ -29,14 +29,14 @@ library
                     System.Hardware.Leap.Event.Hand
                     System.Hardware.Leap.Event.Pointable
                     System.Hardware.Leap.Types
-  build-depends   : base >= 4.8 && < 5
-                  , aeson
-                  , containers
-                  , data-default
-                  , mtl
-                  , text
-                  , unordered-containers
-                  , websockets
+  build-depends   : base                 >= 4.8 && < 5
+                  , aeson                >= 1.3.1
+                  , containers           >= 0.5.10
+                  , data-default         >= 0.7.1
+                  , mtl                  >= 2.2.2
+                  , text                 >= 1.2.3
+                  , unordered-containers >= 0.2.9
+                  , websockets           >= 0.12.5
   hs-source-dirs  : src
   exposed         : True
   buildable       : True
@@ -51,14 +51,14 @@ executable leap-tracker
                     System.Hardware.Leap.Event.Hand
                     System.Hardware.Leap.Event.Pointable
                     System.Hardware.Leap.Types
-  build-depends   : base
-                  , aeson
-                  , containers
-                  , data-default
-                  , mtl
-                  , text
-                  , unordered-containers
-                  , websockets
+  build-depends   : base                 >= 4.8 && < 5
+                  , aeson                >= 1.3.1
+                  , containers           >= 0.5.10
+                  , data-default         >= 0.7.1
+                  , mtl                  >= 2.2.2
+                  , text                 >= 1.2.3
+                  , unordered-containers >= 0.2.9
+                  , websockets           >= 0.12.5
   hs-source-dirs  : src
   ghc-options     : -Wall
   default-language: Haskell2010
