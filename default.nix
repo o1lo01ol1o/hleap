@@ -1,20 +1,30 @@
-{
-  mkDerivation, stdenv
-, aeson, base, containers, data-default, mtl, text, unordered-containers, websockets
-}:
+let
+  # Read in the Niv sources
+  sources = import ./nix/sources.nix { };
+  # If ./nix/sources.nix file is not found run:
+  #   niv init
+  #   niv add input-output-hk/haskell.nix -n haskellNix
 
-mkDerivation {
-  pname = "hleap";
-  version = "0.2.0.0";
-  src = ./.;
-  isLibrary = true;
-  isExecutable = true;
-  libraryHaskellDepends = [
-    aeson base containers data-default mtl text unordered-containers websockets
-  ];
-  executableHaskellDepends = [
-  ];
-  homepage = "https://bitbucket.org/functionally/hleap";
-  description = "Web Socket interface to Leap Motion controller";
-  license = stdenv.lib.licenses.mit;
+  # Fetch the haskell.nix commit we have pinned with Niv
+  haskellNix = import sources.haskellNix { };
+  # If haskellNix is not found run:
+  #   niv add input-output-hk/haskell.nix -n haskellNix
+
+  # Import nixpkgs and pass the haskell.nix provided nixpkgsArgs
+  pkgs = import
+    # haskell.nix provides access to the nixpkgs pins which are used by our CI,
+    # hence you will be more likely to get cache hits when using these.
+    # But you can also just use your own, e.g. '<nixpkgs>'.
+    haskellNix.sources.nixpkgs-2111
+    # These arguments passed to nixpkgs, include some patches and also
+    # the haskell.nix functionality itself as an overlay.
+    haskellNix.nixpkgsArgs;
+in pkgs.haskell-nix.project {
+  # 'cleanGit' cleans a source directory based on the files known by git
+  src = pkgs.haskell-nix.haskellLib.cleanGit {
+    name = "hleap";
+    src = ./.;
+  };
+  # Specify the GHC version to use.
+  compiler-nix-name = "ghc8107"; # Not required for `stack.yaml` based projects.
 }
